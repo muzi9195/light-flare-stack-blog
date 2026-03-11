@@ -34,7 +34,7 @@ import {
 import { DashboardSkeleton } from "@/features/dashboard/components/dashboard-skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatBytes, formatTimeAgo } from "@/lib/utils";
-import { refreshDashboardCacheFn } from "@/features/dashboard/dashboard.api";
+import { refreshDashboardCacheFn } from "@/features/dashboard/api/dashboard.api";
 import { StatCard } from "@/features/dashboard/components/stat-card";
 import { TrafficChart } from "@/features/dashboard/components/traffic-chart";
 import { MetricItem } from "@/features/dashboard/components/metric-item";
@@ -44,6 +44,7 @@ const SearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/admin/")({
+  ssr: "data-only",
   component: DashboardOverview,
   pendingComponent: DashboardSkeleton,
   validateSearch: (search) => SearchSchema.parse(search),
@@ -75,9 +76,6 @@ function DashboardOverview() {
     onSuccess: () => {
       queryClient.invalidateQueries(dashboardStatsQuery);
       toast.success("数据已刷新");
-    },
-    onError: () => {
-      toast.error("刷新失败，请重试");
     },
   });
 

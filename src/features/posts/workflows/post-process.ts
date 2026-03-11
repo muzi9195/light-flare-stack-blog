@@ -4,7 +4,7 @@ import * as CacheService from "@/features/cache/cache.service";
 import * as PostService from "@/features/posts/posts.service";
 import { POSTS_CACHE_KEYS } from "@/features/posts/posts.schema";
 import { getDb } from "@/lib/db";
-import * as SearchService from "@/features/search/search.service";
+import * as SearchService from "@/features/search/service/search.service";
 import { calculatePostHash } from "@/features/posts/utils/sync";
 import {
   fetchPost,
@@ -81,10 +81,14 @@ export class PostProcessWorkflow extends WorkflowEntrypoint<Env, Params> {
       },
       async () => {
         const db = getDb(this.env);
-        return await PostService.generateSummaryByPostId({
+        const result = await PostService.generateSummaryByPostId({
           context: { db, env: this.env },
           postId,
         });
+        if (result.error) {
+          return null;
+        }
+        return result.data;
       },
     );
     if (!updatedPost) return;
